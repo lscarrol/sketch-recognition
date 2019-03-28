@@ -54,17 +54,68 @@ def preprocess(filename,scale=True):
 
     return train_data, train_label, test_data, test_label
 
+def sig(z):
+    return 1/(1 + np.exp(-z))
+
+
 def sigmoid(z):
     '''
     Notice that z can be a scalar, a vector or a matrix
     return the sigmoid of input z (same dimensions as z)
     '''
-    # your code here - remove the next four lines
-    if np.isscalar(z):
-        s = 0
-    else:
-        s = np.zeros(z.shape)
+    # using numpy ufunc to vectorize function
+
+    s = sig(z)
+
     return s
+
+# weighed sums
+def applyw(w_j, x):
+    # where w_j is the weight corresponding with hidden unit j
+    # x is a feature vector
+    d = len(x)
+    bias = w_j[0] * x[0]
+    q = np.multiply(w_j, x)
+    sum = np.sum(q)
+    sum = sum - bias
+    return sum
+
+
+# 1 of K y encoding
+def encode(y):
+    k = 10
+    i = len(y)
+    Y = np.zeros((i, k))
+    nl = np.arange(i)
+    Y[(nl), (y)] = 1
+    return Y
+
+# log like error function for each input data
+def errfuncsig(o_i, y_i):
+    # y_i is the vector of 1 of k encoded y matrix at row i
+    sum = 0
+    k = 10
+    for l in range(k):
+        curr_y = y_i[l]
+        curr_o = o_i[l]
+        ln_o = np.log(curr_o)
+        ln_o1 = np.log(1 - curr_o)
+        ret = (curr_y * ln_o) + (1 - curr_y) * (ln_o1)
+        sum += ret
+    return -(sum)
+
+# gradient with respect to weights of error functions
+def graderror(y_i, o_i, x_i):
+    theta = y_i - o_i
+    nl = theta * x_i
+    sum = np.sum(nl)
+    return sum
+
+# errfunsum is the final summation of all of the error vals
+def errfunsum(sum_v):
+    n = len(sum_v)
+    sum = np.sum(sum_v)
+    return (1/n) * sum
 
 def nnObjFunction(params, *args):
     '''
