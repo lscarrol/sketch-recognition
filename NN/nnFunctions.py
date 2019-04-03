@@ -6,6 +6,9 @@ import pickle
 You need to modify the functions except for initializeWeights() and preprocess()
 '''
 
+checker = 0
+names = ['apple', 'airplane', 'basketball', 'axe', 'banana', 'horse', 'arm', 'alarm clock', 'ant', 'bed']
+
 def initializeWeights(n_in, n_out):
     '''
     initializeWeights return the random weights for Neural Network given the
@@ -100,12 +103,19 @@ def applyws(w, x):
 def applywsb(w, x):
         return np.transpose(np.dot(w, np.transpose(x)))
 
+def encodestr(names):
+    d = dict([(y,x+1) for x,y in names])
+    a = [d[x] for x in names]
+    return a
+
+
 # 1 of K y encoding
-def encode(y, k):
-    i = len(y)
+def encode(y_1, k):
+    i = len(y_1)
+    y_1 = y_1.astype(int)
     Y = np.zeros((i, k))
     nl = np.arange(i)
-    Y[(nl), (y)] = 1
+    Y[(nl), (y_1)] = 1
     return Y
 
 def applog(z):
@@ -238,7 +248,6 @@ def nnObjFunction(params, *args):
     z = np.append(z,ones,axis=1)           # <--- adds bias to z
     o = feedforward(W1, W2, train_data)
     y = encode(train_label, k)
-
     obj_val = (lval * regwsum(W1, W2)) + (errfuncsig(o, y, data))
 
 
@@ -279,4 +288,5 @@ def nnPredict(W1, W2, data):
     '''
     o = feedforward(W1, W2, data)
     row_i = np.argmax(o, axis=1)
+
     return row_i
