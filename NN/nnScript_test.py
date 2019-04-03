@@ -4,7 +4,7 @@ Neural Network Script Starts here
 from nnFunctions import *
 # you may experiment with a small data set (mnist_sample.pickle) first
 #filename = 'AI_quick_draw.pickle'
-filename = 'mnist_sample.pickle'
+filename = 'mnist_all.pickle'
 train_data, train_label, test_data, test_label = preprocess(filename)
 
 #  Train Neural Network
@@ -49,11 +49,11 @@ def getaccuracy(n_hidden):
 
     # find the accuracy on Training Dataset
     predicted_label = nnPredict(W1, W2, train_data)
-    #print('\n Training set Accuracy:' + str(100 * np.mean((predicted_label == train_label).astype(float))) + '%')
+    print('\n Training set Accuracy:' + str(100 * np.mean((predicted_label == train_label).astype(float))) + '%')
     train_a = (100 * np.mean((predicted_label == train_label)).astype(float))
     # find the accuracy on Testing Dataset
     predicted_label = nnPredict(W1, W2, test_data)
-    #print('\n Test set Accuracy:    ' + str(100 * np.mean((predicted_label == test_label).astype(float))) + '%')
+    print('\n Test set Accuracy:    ' + str(100 * np.mean((predicted_label == test_label).astype(float))) + '%')
     test_a = (100 * np.mean((predicted_label == train_label)).astype(float))
 
     return (train_a, test_a)
@@ -61,9 +61,12 @@ def getaccuracy(n_hidden):
 
 for i in range(14):
     h_val = i * 2
+    print("ITERATION: " + str(i) + "HIDDEN LAYERS: " + str(h_val))
     train_a, test_a = getaccuracy(h_val)
     accuracy_train.update({h_val:train_a})
     accuracy_test.update({h_val:test_a})
-
+    print("/////////////////////////////////////////////////////////////////////////////////////////////////////////////")
+    print("/////////////////////////////////////////////////////////////////////////////////////////////////////////////")
+    print("/////////////////////////////////////////////////////////////////////////////////////////////////////////////")
 print(accuracy_train)
 print(accuracy_test)
