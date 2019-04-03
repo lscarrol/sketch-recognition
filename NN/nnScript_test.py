@@ -4,7 +4,7 @@ Neural Network Script Starts here
 from nnFunctions import *
 # you may experiment with a small data set (mnist_sample.pickle) first
 #filename = 'AI_quick_draw.pickle'
-filename = 'mnist_all.pickle'
+filename = 'mnist_sample.pickle'
 train_data, train_label, test_data, test_label = preprocess(filename)
 
 #  Train Neural Network
@@ -12,7 +12,7 @@ train_data, train_label, test_data, test_label = preprocess(filename)
 n_input = train_data.shape[1]
 
 # set the number of nodes in hidden unit (not including bias unit)
-accuracy_train = {0:0}
+accuracy_train = np.zeros(7)
 accuracy_test = {0:0}
 
 
@@ -52,21 +52,23 @@ def getaccuracy(n_hidden):
     print('\n Training set Accuracy:' + str(100 * np.mean((predicted_label == train_label).astype(float))) + '%')
     train_a = (100 * np.mean((predicted_label == train_label)).astype(float))
     # find the accuracy on Testing Dataset
-    predicted_label = nnPredict(W1, W2, test_data)
-    print('\n Test set Accuracy:    ' + str(100 * np.mean((predicted_label == test_label).astype(float))) + '%')
-    test_a = (100 * np.mean((predicted_label == train_label)).astype(float))
+    #predicted_label = nnPredict(W1, W2, test_data)
+    #print('\n Test set Accuracy:    ' + str(100 * np.mean((predicted_label == test_label).astype(float))) + '%')
+    #test_a = (100 * np.mean((predicted_label == train_label)).astype(float))
 
-    return (train_a, test_a)
+    return train_a
 
 
-for i in range(14):
-    h_val = i * 2
-    print("ITERATION: " + str(i) + "HIDDEN LAYERS: " + str(h_val))
-    train_a, test_a = getaccuracy(h_val)
-    accuracy_train.update({h_val:train_a})
-    accuracy_test.update({h_val:test_a})
-    print("/////////////////////////////////////////////////////////////////////////////////////////////////////////////")
-    print("/////////////////////////////////////////////////////////////////////////////////////////////////////////////")
-    print("/////////////////////////////////////////////////////////////////////////////////////////////////////////////")
+iter = 1
+for i in ([1, 2, 4, 8, 16, 24, 32]):
+    h_val = i
+    print("ITERATION: " + str(iter) + "         HIDDEN LAYERS: " + str(h_val))
+    iter += 1
+    train_a = getaccuracy(h_val)
+    accuracy_train[iter - 1] = train_a
+    print("//////////////////////////////////////////////////////////////////////////////////////////////////////")
+    print("/////////////////////////////////////////////////////////////////////////////////////////////////////")
+    print("////////////////////////////////////////////////////////////////////////////////////////////////////")
+
+np.savetxt('hyperparam_data.dat', accuracy_train)
 print(accuracy_train)
-print(accuracy_test)
