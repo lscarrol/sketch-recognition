@@ -12,7 +12,7 @@ train_data, train_label, test_data, test_label = preprocess(filename)
 n_input = train_data.shape[1]
 
 # set the number of nodes in hidden unit (not including bias unit)
-accuracy_train = np.zeros(7)
+accuracy_train = np.zeros(10)
 accuracy_test = {0:0}
 
 
@@ -60,7 +60,7 @@ def getaccuracy(n_hidden):
 
 
 iter = 1
-for i in ([1, 2, 4, 8, 16, 24, 32]):
+for i in ([1, 2, 4, 8, 16, 24, 32, 64, 128]):
     h_val = i
     print("ITERATION: " + str(iter) + "         HIDDEN LAYERS: " + str(h_val))
     iter += 1
