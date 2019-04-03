@@ -1,9 +1,6 @@
-'''
-Neural Network Script Starts here
-'''
 from nnFunctions import *
-# you may experiment with a small data set (mnist_sample.pickle) first
-filename = 'mnist_sample.pickle'
+
+filename = 'mnist_all.pickle'
 #filename = 'AI_quick_draw.pickle'
 train_data, train_label, test_data, test_label = preprocess(filename)
 
@@ -12,7 +9,7 @@ train_data, train_label, test_data, test_label = preprocess(filename)
 n_input = train_data.shape[1]
 
 # set the number of nodes in hidden unit (not including bias unit)
-n_hidden = 50
+n_hidden = 64
 
 # set the number of nodes in output unit
 n_class = 10
@@ -25,26 +22,13 @@ initial_W2 = initializeWeights(n_hidden, n_class)
 initialWeights = np.concatenate((initial_W1.flatten(), initial_W2.flatten()), 0)
 
 # set the regularization hyper-parameter
-lambdaval = 0
+lambdaval = 35
 
 args = (n_input, n_hidden, n_class, train_data, train_label, lambdaval)
 
-iter = 1
-
-def callbackF(Xi):
-    global iter
-    W1 = Xi[0:n_hidden * (n_input + 1)].reshape((n_hidden, (n_input + 1)))
-    W2 = Xi[(n_hidden * (n_input + 1)):].reshape((n_class, (n_hidden + 1)))
-    predicted_label = nnPredict(W1, W2, train_data)
-    #print(Xi)
-    print(str(iter) + "              :    " + str(100 * np.mean((predicted_label == train_label).astype(float))) + '%           '\
-    + str(predicted_label.T) + "               " + str(train_label))
-    iter += 1
-
 # Train Neural Network using fmin_cg or minimize from scipy,optimize module. Check documentation for a working example
 opts = {'maxiter': 50}  # Preferred value.
-print("Iterations    :    Training Accuracy")
-nn_params = minimize(nnObjFunction, initialWeights, jac=True, args=args, method='CG', options=opts, callback=callbackF)
+nn_params = minimize(nnObjFunction, initialWeights, jac=True, args=args, method='CG', options=opts)
 
 # Reshape nnParams from 1D vector into W1 and W2 matrices
 W1 = nn_params.x[0:n_hidden * (n_input + 1)].reshape((n_hidden, (n_input + 1)))
@@ -60,3 +44,7 @@ print('\n Training set Accuracy:' + str(100 * np.mean((predicted_label == train_
 # find the accuracy on Testing Dataset
 predicted_label = nnPredict(W1, W2, test_data)
 print('\n Test set Accuracy:    ' + str(100 * np.mean((predicted_label == test_label).astype(float))) + '%')
+
+# output params to a pickle
+with open("params.pickle", "wb") as pickle_out:
+    pickle.dump([n_hidden, W1, W2, lambdaval], pickle_out)

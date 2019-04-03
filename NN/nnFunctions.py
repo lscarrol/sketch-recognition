@@ -2,12 +2,7 @@ import numpy as np
 from scipy.optimize import minimize
 from math import sqrt
 import pickle
-'''
-You need to modify the functions except for initializeWeights() and preprocess()
-'''
 
-checker = 0
-names = ['apple', 'airplane', 'basketball', 'axe', 'banana', 'horse', 'arm', 'alarm clock', 'ant', 'bed']
 
 def initializeWeights(n_in, n_out):
     '''
@@ -27,20 +22,6 @@ def initializeWeights(n_in, n_out):
 
 
 def preprocess(filename,scale=True):
-    '''
-     Input:
-     filename: pickle file containing the data_size
-     scale: scale data to [0,1] (default = True)
-     Output:
-     train_data: matrix of training set. Each row of train_data contains
-       feature vector of a image
-     train_label: vector of label corresponding to each image in the training
-       set
-     test_data: matrix of training set. Each row of test_data contains
-       feature vector of a image
-     test_label: vector of label corresponding to each image in the testing
-       set
-    '''
     with open(filename, 'rb') as f:
         train_data = pickle.load(f)
         train_label = pickle.load(f)
@@ -62,10 +43,6 @@ def sig(z):
     return 1/(1 + np.exp(-z))
 
 def sigmoid(z):
-    '''
-    Notice that z can be a scalar, a vector or a matrix
-    return the sigmoid of input z (same dimensions as z)
-    '''
     # using numpy ufunc to vectorize function
 
     s = sig(z)
@@ -223,9 +200,6 @@ def nnObjFunction(params, *args):
     % Output:
     % obj_val: a scalar value representing value of error function
     % obj_grad: a SINGLE vector (not a matrix) of gradient value of error function
-    % NOTE: how to compute obj_grad
-    % Use backpropagation algorithm to compute the gradient of error function
-    % for each weights in weight matrices.
     '''
     n_input, n_hidden, n_class, train_data, train_label, lambdaval = args
     # First reshape 'params' vector into 2 matrices of weights W1 and W2
@@ -288,5 +262,10 @@ def nnPredict(W1, W2, data):
     '''
     o = feedforward(W1, W2, data)
     row_i = np.argmax(o, axis=1)
-
+    '''
+    % Currently working with given datasets, however for testing purposes
+    % if column vector is required use:
+    % row_i = row_i[np.newaxis]
+    % row_i = row_i.T
+    '''
     return row_i
