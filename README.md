@@ -15,8 +15,10 @@ python3, Tensorflow, numpy, pickle, scipy
 ### Finding optimal Hyperparameters
 
 ```
-Navigate to MLPerceptron/Optimization and run the two python files. You may edit the iteration arrays, but I reccomend\ 
-keeping it at default. You will find two .dat files in the directory now with lists of accuracy percentages. Either use\ np.loadtxt(filename) into an array and call np.argmax on the array to find the greatest value + index OR use another maximization\ option for larger iterations.
+Navigate to MLPerceptron/Optimization and run the two python files. You may edit the iteration arrays, but I reccomend
+keeping it at default. You will find two .dat files in the directory now with lists of
+accuracy percentages. Either use np.loadtxt(filename) into an array and call np.argmax on the array to 
+find the greatest value + index OR use another maximization option for larger iterations.
 ```
 ## Running the tests
 
