@@ -224,7 +224,7 @@ def nnObjFunction(params, *args):
     W2 = params[(n_hidden * (n_input + 1)):].reshape((n_class, (n_hidden + 1)))
     obj_val = 0
     data = train_data.shape[0]
-    d = training_data.shape[1]
+    d = train_data.shape[1]
     # train_data.shape[0] = 60,000
     # train_data.shape[1] = 784
     k = W2.shape[0]
@@ -232,12 +232,12 @@ def nnObjFunction(params, *args):
     wl1 = W1 * lambdaval
     wl2 = W2 * lambdaval
 
-    a = applyws(W1, training_data)
+    a = applyws(W1, train_data)
     z = sigmoid(a)
     ones = np.ones((z.shape[0],1))
     z = np.append(z,ones,axis=1)           # <--- adds bias to z
     o = feedforward(W1, W2, train_data)
-    y = encode(training_label, k)
+    y = encode(train_label, k)
 
     obj_val = (lval * regwsum(W1, W2)) + (errfuncsig(o, y, data))
 
@@ -260,7 +260,6 @@ def nnObjFunction(params, *args):
     obj_grad = np.concatenate((t_l.flatten(), z1.flatten()), axis=0)
 
 
-    params = obj_grad
     return (obj_val, obj_grad)
 
 
@@ -280,5 +279,4 @@ def nnPredict(W1, W2, data):
     '''
     o = feedforward(W1, W2, data)
     row_i = np.argmax(o, axis=1)
-    labels = (row_i[np.newaxis]).T
-    return labels
+    return row_i

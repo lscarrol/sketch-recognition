@@ -3,7 +3,7 @@ Neural Network Script Starts here
 '''
 from nnFunctions import *
 # you may experiment with a small data set (mnist_sample.pickle) first
-filename = '../basecode/mnist_all.pickle'
+filename = 'mnist_sample.pickle'
 #filename = 'AI_quick_draw.pickle'
 train_data, train_label, test_data, test_label = preprocess(filename)
 
@@ -29,10 +29,22 @@ lambdaval = 0
 
 args = (n_input, n_hidden, n_class, train_data, train_label, lambdaval)
 
+iter = 1
+
+def callbackF(Xi):
+    global iter
+    W1 = Xi[0:n_hidden * (n_input + 1)].reshape((n_hidden, (n_input + 1)))
+    W2 = Xi[(n_hidden * (n_input + 1)):].reshape((n_class, (n_hidden + 1)))
+    predicted_label = nnPredict(W1, W2, train_data)
+    #print(Xi)
+    print(str(iter) + "              :    " + str(100 * np.mean((predicted_label == train_label).astype(float))) + '%           '\
+    + str(predicted_label.T) + "               " + str(train_label))
+    iter += 1
+
 # Train Neural Network using fmin_cg or minimize from scipy,optimize module. Check documentation for a working example
 opts = {'maxiter': 50}  # Preferred value.
-
-nn_params = minimize(nnObjFunction, initialWeights, jac=True, args=args, method='CG', options=opts)
+print("Iterations    :    Training Accuracy")
+nn_params = minimize(nnObjFunction, initialWeights, jac=True, args=args, method='CG', options=opts, callback=callbackF)
 
 # Reshape nnParams from 1D vector into W1 and W2 matrices
 W1 = nn_params.x[0:n_hidden * (n_input + 1)].reshape((n_hidden, (n_input + 1)))
