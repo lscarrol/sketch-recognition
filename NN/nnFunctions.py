@@ -54,9 +54,9 @@ def preprocess(filename,scale=True):
 
     return train_data, train_label, test_data, test_label
 
+
 def sig(z):
     return 1/(1 + np.exp(-z))
-
 
 def sigmoid(z):
     '''
@@ -74,42 +74,113 @@ def applyw(w_j, x):
     # where w_j is the weight corresponding with hidden unit j
     # x is a feature vector
     d = len(x)
-    bias = w_j[0] * x[0]
+    bias = w_j[3] * x[3]
     q = np.multiply(w_j, x)
     sum = np.sum(q)
     sum = sum - bias
     return sum
 
+def applywb(w_j, x):
+    # where w_j is the weight corresponding with hidden unit j
+    # x is a feature vector
+    d = len(x)
+    #bias = w_j[0] * x[0]
+    q = np.multiply(w_j, x)
+    sum = np.sum(q)
+    #sum = sum - bias
+    return sum
+
+def applyws(w, x):
+    ones = np.ones((x.shape[0], 1))
+    xb = np.append(x, ones, axis=1)
+    xt = np.transpose(xb)
+    dt = np.dot(w, xt)
+    return np.transpose(dt)
+
+def applywsb(w, x):
+        return np.transpose(np.dot(w, np.transpose(x)))
 
 # 1 of K y encoding
-def encode(y):
-    k = 10
+def encode(y, k):
     i = len(y)
     Y = np.zeros((i, k))
     nl = np.arange(i)
     Y[(nl), (y)] = 1
     return Y
 
+def applog(z):
+    return (np.log(z))
+
+def logz(z):
+    s = applog(z)
+    return s
+
+def applogm(z):
+    return (np.log(1 - z))
+
+def logm(z):
+    s = applogm(z)
+    return s
+
+def appsuby(z):
+    return (1 - z)
+
+def suby(z):
+    s = appsuby(z)
+    return s
+
+def looper(arr_1, arr_2, n, d):
+    retarr = np.zeros((n, d))
+    for i in range(0, n):
+        for q in range(0, d):
+            retarr[i][q] = arr_1[i] * arr_2[q]
+    return retarr
+
+def grad_W2(z, delta, wl):
+    n = delta.shape[0]
+    vec = (np.matmul(np.transpose(delta), z))
+    sum_v = vec + wl
+    return ((1 / n) * (sum_v))
+
+def grad_W1(delta, z_mul, w_b, n_x, data, wl1):
+    sum_m1 = np.dot((delta), w_b)
+    z_mul = z_mul * sum_m1
+    z_mul = np.dot(np.transpose(z_mul), n_x)
+    z_mul = z_mul + wl1
+    return ((1 / data) * z_mul)
+
+def regwsum(W1, W2):
+    w1 = W1 ** 2
+    w2 = W2 ** 2
+    sumw = w1.sum() + w2.sum()
+    return sumw
+
+def feedforward(W1, W2, data):
+    a = applyws(W1, data)
+    z = sigmoid(a)
+    ones = np.ones((z.shape[0],1))
+    z = np.append(z,ones,axis=1)
+    b = applywsb(W2, z)
+    o = sigmoid(b)
+    return o
+
 # log like error function for each input data
-def errfuncsig(o_i, y_i):
+def errfuncsig(o, y, n):
     # y_i is the vector of 1 of k encoded y matrix at row i
-    sum = 0
-    k = 10
-    for l in range(k):
-        curr_y = y_i[l]
-        curr_o = o_i[l]
-        ln_o = np.log(curr_o)
-        ln_o1 = np.log(1 - curr_o)
-        ret = (curr_y * ln_o) + (1 - curr_y) * (ln_o1)
-        sum += ret
-    return -(sum)
+    logT = logz(o)
+    logM = logm(o)
+    ym = suby(y)
+    m_1 = logT * y
+    m_2 = ym * logM
+    sum_m = m_1 + m_2
+    a = sum_m.sum()
+    return (a * (-1/n))
 
 # gradient with respect to weights of error functions
 def graderror(y_i, o_i, x_i):
     theta = y_i - o_i
     nl = theta * x_i
-    sum = np.sum(nl)
-    return sum
+    return nl
 
 # errfunsum is the final summation of all of the error vals
 def errfunsum(sum_v):
@@ -152,22 +223,44 @@ def nnObjFunction(params, *args):
     W1 = params[0:n_hidden * (n_input + 1)].reshape((n_hidden, (n_input + 1)))
     W2 = params[(n_hidden * (n_input + 1)):].reshape((n_class, (n_hidden + 1)))
     obj_val = 0
+    data = train_data.shape[0]
+    d = training_data.shape[1]
+    # train_data.shape[0] = 60,000
+    # train_data.shape[1] = 784
+    k = W2.shape[0]
+    lval = lambdaval * (1/(2*data))
+    wl1 = W1 * lambdaval
+    wl2 = W2 * lambdaval
 
-    # Your code here
-    #
-    #
-    #
-    #
-    #
+    a = applyws(W1, training_data)
+    z = sigmoid(a)
+    ones = np.ones((z.shape[0],1))
+    z = np.append(z,ones,axis=1)           # <--- adds bias to z
+    o = feedforward(W1, W2, train_data)
+    y = encode(training_label, k)
+
+    obj_val = (lval * regwsum(W1, W2)) + (errfuncsig(o, y, data))
 
 
+    # ----- FIND obj_grad (using equations (16) & (17)) -----
 
-    # Make sure you reshape the gradient matrices to a 1D array. for instance if
-    # your gradient matrices are grad_W1 and grad_W2
-    # you would use code similar to the one below to create a flat array
-    # obj_grad = np.concatenate((grad_W1.flatten(), grad_W2.flatten()),0)
-    obj_grad = np.zeros(params.shape)
+    # precursor vars
+    n_x = np.append(train_data, (np.ones((train_data.shape[0],1))), axis=1)
+    z_wb = np.delete(z, -1, axis=1)
+    z_sub = suby(z_wb)
+    z_mul = z_wb * z_sub
+    delta = o - y
+    w_b = np.delete(W2, -1, axis=1)
 
+    # grad for W2
+    z1 = grad_W2(z, delta, wl2)
+
+    # grad for W1
+    t_l = grad_W1(delta, z_mul, w_b, n_x, data, wl1)
+    obj_grad = np.concatenate((t_l.flatten(), z1.flatten()), axis=0)
+
+
+    params = obj_grad
     return (obj_val, obj_grad)
 
 
@@ -185,8 +278,7 @@ def nnPredict(W1, W2, data):
     % Output:
     % label: a column vector of predicted labels
     '''
-
-    labels = np.zeros((data.shape[0],))
-    # Your code here
-
+    o = feedforward(W1, W2, data)
+    row_i = np.argmax(o, axis=1)
+    labels = (row_i[np.newaxis]).T
     return labels
